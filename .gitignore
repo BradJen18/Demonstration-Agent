@@ -10,3 +10,5 @@ wheels/
 .venv
 .env
 ethics_document.txt
+user_profile.txt
+ml_portfolio_summary.qmd

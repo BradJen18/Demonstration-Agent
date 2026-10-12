@@ -1,45 +1,37 @@
+import logging
+logging.getLogger("google_genai").setLevel(logging.ERROR)
+logging.getLogger("langchain_google_genai._function_utils").setLevel(logging.ERROR)
+logging.disable(logging.WARNING)
+
+import warnings
+from langchain_core._api import LangChainBetaWarning
+warnings.filterwarnings("ignore", category=LangChainBetaWarning)
+
 from dotenv import load_dotenv
-import requests
-import os
 load_dotenv()
 
 from langchain.agents import create_agent
-from langchain.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
-
-from langchain.agents import create_agent
 from langchain.mcp import MCPAdapter
 import asyncio
 
 from rich.console import Console
 from rich.markdown import Markdown
+from Tools import get_weather,list_directory, read_safe_file, write_safe_file,add_memory
 
 #Args:before each response, review the Ethics_folder.txt and decide if what you are doing aligns with the text. # additional prompt to add later
 system_prompt= """
-You are my british AI that loves to help, but is reluctant to work with me, an american
+You are my up beat AI that corrects mistakes and doesn't sugar coat anything, but encourages personal growth and understanding
+
+Args:before each response, review the Ethics_document.txt and decide if what you are doing aligns with the text.
+
 """
-Ethics_folder = "\Demonstration-Agent\ethics_document.txt"
 
-@tool
-def get_weather() -> str:
-    """Get the weather for Rexburg, Idaho."""
-
-    api_key = os.getenv("OPENWEATHER_API_KEY")
-    if not api_key:
-        raise ValueError("Can't find API key")
-
-    lat, lon = 43.8231, -111.7924  # Rexburg, ID
-    url = "https://api.openweathermap.org/data/2.5/weather"
-    params = {"lat": lat, "lon": lon, "units": "imperial","appid":api_key}
-
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    return response.json()
 
 def main():
     asyncio.run(_main())
 
-async def _main():
+async def _main(): #look up context7
     config = {
         "mcpServers": {
             "docs-langchain": {
@@ -47,7 +39,7 @@ async def _main():
             },
             "reference-langchain": {
             "url": "https://reference.langchain.com/mcp"
-            }#,"files": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", Ethics_folder]},
+            }
         }
     }
 
@@ -57,7 +49,7 @@ async def _main():
     agent = create_agent(
     model="google_genai:gemini-flash-lite-latest",
     system_prompt=system_prompt,
-    tools=mcp_tools+[get_weather],
+    tools=mcp_tools+[get_weather,read_safe_file,list_directory,write_safe_file,add_memory],
     checkpointer=InMemorySaver()
     )
 
