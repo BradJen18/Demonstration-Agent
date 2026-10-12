@@ -11,4 +11,5 @@ wheels/
 .env
 ethics_document.txt
 user_profile.txt
+memory.txt
 ml_portfolio_summary.qmd

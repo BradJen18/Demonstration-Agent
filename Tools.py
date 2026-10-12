@@ -79,14 +79,13 @@ def write_safe_file(path: str, content: str) -> str:
     return f"Successfully wrote to {path}"
 
 @tool
-def get_weather() -> str:
-    """Get the weather for Rexburg, Idaho."""
+def get_weather(lat:str,lon:str) -> str:
+    """find the longitude and latitude for location stated and give the weather for that location"""
 
     api_key = os.getenv("OPENWEATHER_API_KEY")
     if not api_key:
         raise ValueError("Can't find API key")
 
-    lat, lon = 43.8231, -111.7924  # Rexburg, ID
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {"lat": lat, "lon": lon, "units": "imperial","appid":api_key}
 
